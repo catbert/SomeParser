@@ -40,7 +40,7 @@ namespace SomeParser.Test
                     def sb = Text.StringBuilder();
                     tokens.Iter(t => _ = sb.AppendLine(t.ToString(proj)));
                 
-                    if (sb.ToString() == expectedOutput) TestResult.Success(Name, "") else TestResult.Failure(Name, DiffLine(sb.ToString(), expectedOutput).ToString());
+                    if (sb.ToString() == expectedOutput) TestResult.Success(Name, "Tokens matched") else TestResult.Failure(Name, DiffLine(sb.ToString(), expectedOutput).ToString());
                 }
                 else
                 {
@@ -73,8 +73,8 @@ namespace SomeParser.Test
                         def tok = Tokenizer.MainTokenizer();
                         _ = tok.Tokenize(proj, 0);
                     },
-                    times = 100,
-                    test = $"100 times ($(resultCount) tokens) took");
+                    times = 10,
+                    test = $"10 times ($(resultCount) tokens) took");
                     
                 if (!tok.HasErrors)
                 {

@@ -24,16 +24,56 @@ namespace SomeParser.Tokenizer
         // is applicable if char is sign
         public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
         {
-            Char.IsNumber(engine.Data.RemainingText[0])
+            def symbol = engine.Data.RemainingText[0];
+            def nextSymbol = if (engine.Data.RemainingText.Length > 1) engine.Data.RemainingText[1] else 0 :> char;
+            
+            match (symbol, nextSymbol)
+            {
+                | (x, _) when Char.IsDigit(x)
+                
+                | ('+', x)
+                | ('-', x)
+                | ('.', x)
+                    => Char.IsDigit(x)
+                
+                | ('+', '.')
+                | ('-', '.') => true
+                
+                | _ => false
+            }
         }
         
         // stops engine
         public override Apply(engine : RuleEngine[TokenizerState]) : void
-        {
-            def (tokenSubString, tail) = engine.Data.RemainingText.SplitByChar( Char.IsNumber );
+        {   
+            def text = engine.Data.RemainingText;
+                
+            mutable i = 0;
+            mutable state = 0; // 0 - at sign, 1 - at int, 2 - at dot, 3 - at dec, 4 - at e, 5 - at expsign, 6 - at exp
+            mutable error = false;
             
-            engine.Data.Tokens.Add(Token.Number(tokenSubString.Location));
-            engine.Data.RemainingText = tail;
+            result : {
+                
+                
+                while (i < text.Length)
+                {
+                    def symbol = text[i];
+                    def nextSymbol = if (i + 1 < text.Length) text[i + 1] else 0 :> char;
+                    
+                    match (state, symbol, nextSymbol)
+                    {
+                        // 0 - at sign
+                        | (0, '+', _) 
+                        | (0, '-', _) => state = 1; i++;
+                        
+                        | (0, '.', _) => state = 2;
+                        
+                        | (0,  d , _) when Char.IsDigit(d) => state = 1;
+                        
+                        | (0,  _ , _) => error = true; result(i)
+                    }
+                }
+            }
         }
         
     }

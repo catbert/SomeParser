@@ -17,11 +17,7 @@ namespace SomeParser.Test
     {
         
         [Accessor] _curDir : string = Environment.CurrentDirectory;
-        
-        public this()
-        {
-        }
-        
+                
         public this(folder : string)
         {
             _curDir = Path.Combine(_curDir, folder);

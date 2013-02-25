@@ -75,6 +75,27 @@ namespace SomeParser
             }
         }
         
+        public SplitByString(predicate : string -> bool) : SubString * SubString
+        {            
+            result : {
+            
+                for (mutable i = Start; i < End; i++)
+                {
+                    def str = SubString(Handle, Source, Start, i - Start);
+                
+                    unless (predicate(str.ToString()))
+                    {
+                        def tail = Skip(str.Length);
+                    
+                        result((str, tail))
+                    }
+                };
+                
+                (this, Skip(Length))
+                
+            }
+        }
+        
         public Skip(offset : int) : SubString
         {
             if (offset == Length)

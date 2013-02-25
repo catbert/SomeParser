@@ -45,7 +45,7 @@ namespace SomeParser.Test
             {
                 | Success(s) => printer.WriteLine($"SUCCESS ($s)");
                 | Message(m) => printer.WriteLine(m);
-                | Failure(f) => printer.WriteLine(f);
+                | Failure(f) => printer.WriteLine($"FAILURE - $f");
                 | Thrown(ex) => writeException(ex);
             };
             

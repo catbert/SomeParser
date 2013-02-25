@@ -21,6 +21,7 @@ namespace SomeParser.Tokenizer
         | Text
         | Number
         | Custom { data : CustomToken }
+        | Error
         
         public override ToString() : string
         {
