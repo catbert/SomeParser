@@ -1,0 +1,117 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Tests tokenizer by comparing tokenizer output to reference output
+    /// </summary>
+    class TokenizerIOTest : IOTest
+    {
+        public this()
+        {
+            base("Cases", "tok");
+        }
+        
+        protected override RunTestOnIO(name : string, input : string, expectedOutput : string) : TestResult
+        {
+            when (name is null) throw ArgumentNullException("name");
+            Name = $"Tokenizer test $name";
+            
+            if (input is null) TestResult.Failure(Name, "There is no input") else
+            if (name.Contains("perf")) TestPerf(input) else
+            if (expectedOutput is null) TestResult.Failure(Name, "There is no output") else
+            try
+            {
+                def proj = Project();
+                proj.Sources.Add(input);
+                
+                def tok = Tokenizer.MainTokenizer();
+                def tokens = tok.Tokenize(proj, 0);
+                
+                if (!tok.HasErrors)
+                {
+                    def sb = Text.StringBuilder();
+                    tokens.Iter(t => _ = sb.AppendLine(t.ToString(proj)));
+                
+                    if (sb.ToString() == expectedOutput) TestResult.Success(Name, "") else TestResult.Failure(Name, DiffLine(sb.ToString(), expectedOutput).ToString());
+                }
+                else
+                {
+                    TestResult.Failure(Name, tok.Messages.Filter(_ is Message.Error).First().Text)
+                }
+            }
+            catch
+            {
+                e is Exception => TestResult.Thrown(Name, e)
+            }
+        }
+        
+        TestPerf(input : string) : TestResult
+        {
+            try
+            {
+                def proj = Project();
+                proj.Sources.Add(input);
+                
+                def tok = Tokenizer.MainTokenizer();
+                _ = tok.Tokenize(proj, 0);
+                def resultCount = tok.Data.Tokens.Count;              
+                
+                def preresult = PerfTest(
+                    action = () => 
+                    {
+                        def proj = Project();
+                        proj.Sources.Add(input);
+                
+                        def tok = Tokenizer.MainTokenizer();
+                        _ = tok.Tokenize(proj, 0);
+                    },
+                    times = 100,
+                    test = $"100 times ($(resultCount) tokens) took");
+                    
+                if (!tok.HasErrors)
+                {
+                    preresult
+                }
+                else
+                {
+                    TestResult.Failure(Name, tok.Messages.Filter(_ is Message.Error).First().Text)
+                }
+            }
+            catch
+            {
+                e is Exception => TestResult.Thrown(Name, e)
+            }
+        }
+        
+        private static DiffLine(first : string, second : string) : string * string
+        {
+            def firstLines = first.Split(array["\r\n"], StringSplitOptions.None);
+            def secondLines  = second.Split(array["\r\n"], StringSplitOptions.None);
+            
+            return : { 
+                for (mutable i = 0; i < firstLines.Length; i++)
+                {
+                    if (i < secondLines.Length)
+                    {
+                        when (firstLines[i] != secondLines[i]) return(firstLines[i], secondLines[i]);
+                    }
+                    else
+                    {
+                        return(firstLines[i], null)
+                    }
+                }
+                when (secondLines.Length > firstLines.Length) return(null, secondLines[firstLines.Length]);
+                
+                (null, null)
+            }
+        }
+    }
+}

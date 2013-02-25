@@ -1,0 +1,40 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Tokenizer
+{
+    /// <summary>
+    /// Clears out whitespace
+    /// </summary>
+    class RuleWhitespace : Rule[TokenizerState]
+    {
+        
+        // priority 9
+        public this()
+        {
+            base(9);
+        }
+        
+        // is applicable when first character is whitespace
+        public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
+        {
+            Char.IsWhiteSpace(engine.Data.RemainingText[0])
+        }
+        
+        // skips next whitespace
+        public override Apply(engine : RuleEngine[TokenizerState]) : void
+        {
+            def (head, tail) = engine.Data.RemainingText.SplitByChar( Char.IsWhiteSpace );
+            
+            _ = head;
+            engine.Data.RemainingText = tail;
+        }
+        
+    }
+}

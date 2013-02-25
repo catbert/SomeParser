@@ -1,0 +1,113 @@
+﻿using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Console;
+using System.Linq;
+
+using SomeParser;
+using SomeParser.Test;
+using SomeParser.ConsoleTools;
+
+module Program
+{
+    Main() : void
+    {
+        while (true)
+        {
+            InColor(ConsoleColor.White, () => {
+                WriteLine("Select your action.");
+                WriteLine("  1 Run root test");
+                WriteLine("  2 Generate tokenizer out-files");
+                WriteLine("  3 Delete tokenizer out-files");
+                WriteLine("  9 Exit");
+            });
+       
+            match (ReadLine().Trim())
+            {
+                | "1" => RunRootTest()
+                | "2" => GenerateTokenizerOutfiles()
+                | "3" => DeleteTokenizerOutfiles()
+                
+                | "9" => Exit()
+                | _   => IncorrectInput()
+            }
+            
+            WriteLine();
+        }
+    }
+    
+    RunRootTest() : void
+    {
+        def test = ListTest.RootTest;
+        def results = test.Run();
+        def writer = IO.StreamWriter("test.log");
+        
+        foreach (res in results)
+        {
+            res.ConsoleWrite(2);
+            res.Write(writer);
+        }
+        
+        writer.Close();
+    }
+    
+    GenerateTokenizerOutfiles() : void
+    {
+        WriteLine("Generating tokenizer outfiles...");
+        
+        def fm = FileManager("Cases");
+        def inFileNames = fm.GetFiles("*.tok.in");
+
+        mutable i = 0;
+        
+        foreach (ifn in inFileNames)
+        {
+            WriteLine($"Processing $ifn...");
+            def text = fm.ReadFile(ifn);
+            def proj = Project();
+            proj.Sources.Add(text);
+            
+            def tok = SomeParser.Tokenizer.MainTokenizer();
+            def tokens = tok.Tokenize(proj, 0);
+
+            tok.Messages.Iter(x => x.ConsoleWrite());
+            
+            def outFileBuilder = Text.StringBuilder();
+            tokens.Iter(t => _ = outFileBuilder.AppendLine(t.ToString(proj)));
+            
+            def ofn = fm.ChangeExtension(ifn, "out");
+            
+            if (!fm.Exists(ofn))
+                fm.WriteFile(ofn, outFileBuilder.ToString());
+            else
+                ConsoleTools.WriteInColor(ConsoleColor.DarkYellow, $"$ofn already exists. Didn't write anything");
+                
+            WriteLine($"$ifn processed into $ofn");
+            i++;
+        }
+        
+        WriteLine($"$i files processed");
+    }
+    
+    DeleteTokenizerOutfiles() : void
+    {
+        WriteLine("Deleting tokenizer outfiles...");
+        
+        def fm = FileManager("Cases");
+        fm.GetFiles("*.tok.out").Iter(fm.Delete);
+    }
+    
+    Exit() : void
+    {
+        WriteLine("Exiting...");
+        Environment.Exit(0);
+    }
+    
+    IncorrectInput() : void
+    {
+        WriteLine("Incorrect input");
+    }
+}

@@ -1,0 +1,157 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Extensions;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using SomeParser;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Description of RuleEngineTest.
+    /// </summary>
+    class RuleEngineTest : Test
+    {        
+        protected override RunImpl() : Seq[TestResult]
+        {
+            Name = "GCD RuleEngine test";
+            yield CheckTrue(() => TestGcd(-1, 3, None()), "GCD of negative number doesnt work");
+            yield CheckTrue(() => TestGcd(1, 3, Some(1)), "GCD of (1, x) is 1");
+            yield CheckTrue(() => TestGcd(16, 12, Some(4)), "GCD of (16, 12) is 4");
+            yield CheckTrue(() => TestGcd(5, 5, Some(5)), "GCD of (5, 5) is 5");
+            yield CheckTrue(() => TestGcd(30, 56, Some(2)), "GCD of (30, 56) is 2");
+            yield CheckTrue(() => TestGcd(57, 13, Some(1)), "GCD of (57, 13) is 1");
+        }
+        
+        TestGcd(a : int, b : int, result : option[int]) : bool
+        {
+            def re = GcdRuleEngine(a, b);
+            re.Run();
+            
+            match (result)
+            {
+                | Some(x) => 
+                    def (a, b) = re.Data;
+                    a == b && b == x && !re.HasErrors
+                    
+                | None => 
+                    re.HasErrors && !re.HasInternalErrors
+            }
+        }
+        
+        class GcdRuleEngine : RuleEngine[int * int]
+        {
+            
+            public this(a : int, b : int)
+            {
+                _ = Rules <- [
+                        FinishRule(),
+                        ReductionAB(),
+                        ReductionBA(),
+                        ErrorRule()
+                    ];
+                
+                Data = (a, b);
+            }
+            
+        }
+        
+        class FinishRule : Rule[int * int]
+        {
+         
+            public this()
+            {
+                base(0);
+            }
+                        
+            public override Apply(engine : RuleEngine[(int * int)]) : void
+            {
+                engine.IsFinished = true;
+            }
+            
+            public override IsApplicable(engine : SomeParser.RuleEngine[(int * int)]) : bool
+            {
+                def (a, b) = engine.Data;
+                
+                a == b
+            }
+            
+        }
+        
+        class ReductionAB : Rule[int * int]
+        {
+            
+            public this()
+            {
+                base(5);
+            }
+                        
+            public override Apply(engine : RuleEngine[(int * int)]) : void
+            {
+                def (a, b) = engine.Data;
+                
+                engine.Data = (a - b, b);
+            }
+            
+            public override IsApplicable(engine : SomeParser.RuleEngine[(int * int)]) : bool
+            {
+                def (a, b) = engine.Data;
+                
+                a > b
+            }
+            
+        }
+        
+        class ReductionBA : Rule[int * int]
+        {
+            
+            public this()
+            {
+                base(5);
+            }
+                        
+            public override Apply(engine : RuleEngine[(int * int)]) : void
+            {
+                def (a, b) = engine.Data;
+                
+                engine.Data = (a, b - a);
+            }
+            
+            public override IsApplicable(engine : SomeParser.RuleEngine[(int * int)]) : bool
+            {
+                def (a, b) = engine.Data;
+                
+                a < b
+            }
+            
+        }        
+        
+        class ErrorRule : Rule[int * int]
+        {
+            
+            public this()
+            {
+                base(10);
+            }
+            
+            public override Apply(engine : RuleEngine[(int * int)]) : void
+            {
+                engine.CriticalError(Message.Error(Loc(), "Negative a or b", None()));
+            }
+            
+            public override IsApplicable(engine : RuleEngine[(int * int)]) : bool
+            {
+                def (a, b) = engine.Data;
+                
+                a <= 0 || b <= 0
+            }
+            
+        }
+
+    }
+}

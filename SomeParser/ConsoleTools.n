@@ -1,0 +1,53 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// Some tools to use with console
+    /// </summary>
+    public module ConsoleTools
+    {
+        [ThreadStatic]
+        mutable colorList : list[ConsoleColor];
+        
+        public PushColor(color : ConsoleColor) : void
+        {
+            when (colorList is null) colorList = [];
+            
+            colorList ::= Console.ForegroundColor;
+            Console.ForegroundColor = color;
+        }
+        
+        public PopColor() : void
+        {
+            when (colorList is null) colorList = [];
+            
+            match (colorList)
+            {
+                | h :: t => 
+                    colorList = t;
+                    Console.ForegroundColor = h
+                    
+                | [] => ()
+            }
+        }
+        
+        public InColor(color : ConsoleColor, action : void -> void) : void
+        {
+            PushColor(color);
+            try action() finally PopColor();
+        }
+        
+        public WriteInColor(color : ConsoleColor, text : string) : void
+        {
+            InColor(color, () => Console.WriteLine(text));
+        }
+    }
+}

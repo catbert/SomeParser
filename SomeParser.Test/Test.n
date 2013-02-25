@@ -1,0 +1,101 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Description of Test.
+    /// </summary>
+    abstract class Test
+    {
+        
+        public Name : string
+        {
+            get;
+            set;
+        }
+        
+        public Run() : Seq[TestResult]
+        {
+            try
+            {
+                RunImpl();
+            }
+            catch
+            {
+                | ex is Exception => [ TestResult.Thrown(Name, ex) ]
+            }
+        }
+        
+        protected abstract RunImpl() : Seq[TestResult];
+        
+        protected CheckTrue(condition : void -> bool, text : string = null) : TestResult
+        {
+            def text = text ?? "Condition is True.";
+            
+            try 
+            {
+                if (condition())
+                {
+                    TestResult.Success(Name, text)
+                }
+                else
+                {
+                    TestResult.Failure(Name, text)
+                }
+            }
+            catch
+            {
+                ex is Exception => TestResult.Thrown(Name, ex)
+            }
+        }
+        
+        protected CheckFalse(condition : void -> bool, text : string = null) : TestResult
+        {
+            CheckTrue(() => !condition(), text ?? "Condition is False.")
+        }
+        
+        protected CheckException[T](action : void -> void, text : string = null) : TestResult where T : Exception
+        {
+            def text = text ?? $"Expected $(typeof(T).Name)";
+            
+            try
+            {
+                action();
+                TestResult.Failure(Name, text);
+            }
+            catch
+            {
+                | _ is T => TestResult.Success(Name, text);
+                | ex     => TestResult.Thrown(Name, ex);
+            }
+        }
+        
+        protected PerfTest(action : void -> void, times : int, test : string = "Took") : TestResult
+        {
+            def sw = Diagnostics.Stopwatch.StartNew();
+            
+            try
+            {
+                for (mutable i = 0; i < times; i++)
+                {
+                    action();
+                }
+                
+                sw.Stop();
+                TestResult.Message(Name, $"$test $(sw.Elapsed).");
+            }
+            catch
+            {
+                | ex => TestResult.Thrown(Name, ex);
+            }
+            
+        }
+    }
+}

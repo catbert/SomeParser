@@ -1,0 +1,68 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using SomeParser.ConsoleTools;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Describes test result variants
+    /// </summary>
+    [Record]
+    variant TestResult
+    {
+        | Success   { message : string }
+        | Message   { message : string }
+        | Failure   { message : string }
+        | Thrown    { value   : Exception }
+
+        [Accessor] _testName : string;
+        
+        public Write(printer : IO.TextWriter) : void
+        {
+            def writeException(exc : Exception)
+            {
+                printer.WriteLine(exc.Message);
+                printer.WriteLine("STACK TRACE");
+                printer.Write(exc.StackTrace);
+                
+                when (exc.InnerException != null)
+                {
+                    printer.Write("--- INNER EXCEPTION ---");
+                    writeException(exc.InnerException);
+                }
+            }
+            
+            printer.WriteLine(TestName);
+            
+            match (this)
+            {
+                | Success(s) => printer.WriteLine($"SUCCESS ($s)");
+                | Message(m) => printer.WriteLine(m);
+                | Failure(f) => printer.WriteLine(f);
+                | Thrown(ex) => writeException(ex);
+            };
+            
+            printer.WriteLine(string('*', 12));
+        }
+        
+        public ConsoleWrite(level : int) : void
+        {
+            match (this)
+            {
+                | Success(s) => when (level > 1) WriteInColor(ConsoleColor.DarkGreen, $"$TestName: Success ($s)");
+                | Message(m) => when (level > 0) WriteInColor(ConsoleColor.DarkYellow, $"$TestName: $m");
+                | Failure(f) => WriteInColor(ConsoleColor.DarkRed, $"$TestName: Failed. $f");
+                | Thrown(ex) => WriteInColor(ConsoleColor.Red, $"$TestName: Failed with exception. See log for details. $(ex.Message)");
+            }
+        }
+        
+
+    }
+}

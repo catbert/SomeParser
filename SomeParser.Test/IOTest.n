@@ -1,0 +1,45 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Tests by files
+    /// </summary>
+    abstract class IOTest : Test
+    {
+        
+        [Accessor] _fm : FileManager;
+        [Accessor] _suffix : string;
+        
+        InFilePattern : string;
+        
+        protected this(folder : string, suffix : string)
+        {
+            _fm = FileManager(folder);
+            _suffix = suffix;
+            InFilePattern = $"*.$Suffix.in";
+        }
+                
+        protected sealed override RunImpl() : Seq[TestResult]
+        {
+            def fileNames = Fm.GetFiles(InFilePattern);
+            
+            foreach (ifn in fileNames)
+            {
+                def name = Fm.ChangeExtension(ifn, "");
+                def ofn = Fm.ChangeExtension(ifn, "out");
+                
+                yield RunTestOnIO(name, Fm.ReadFile(ifn), Fm.ReadFile(ofn));
+            }
+        }
+        
+        protected abstract RunTestOnIO(name : string, input : string, expectedOutput : string) : TestResult;
+    }
+}

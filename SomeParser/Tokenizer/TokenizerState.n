@@ -1,0 +1,44 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Tokenizer
+{
+    /// <summary>
+    /// Represents a state parameter of Tokenizer rule engine
+    /// </summary>
+    public class TokenizerState
+    {
+        [Accessor] _tokens : List[Token] = List();
+        
+        mutable _remaining : SubString;
+        public RemainingText : SubString
+        {
+            get
+            {
+                _remaining;
+            }
+            set
+            {
+                when (value is null) throw ArgumentNullException("value");
+                
+                _remaining = value;
+            }
+        }
+        
+        public SkipChar() : void
+        {
+            RemainingText = RemainingText.Skip(1);
+        }
+        
+        public this(text : SubString)
+        {
+            RemainingText = text;
+        }
+    }
+}

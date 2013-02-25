@@ -1,0 +1,121 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// Description of StringSource.
+    /// </summary>
+    [Record]
+    public class SubString : Seq[char], ILocatable
+    {
+        
+        public GetEnumerator() : IEnumerator[char]
+        { 
+            EnumerateCharacters().GetEnumerator()
+        }
+        
+        [Accessor] _handle : SourceHandle;
+        [Accessor] _source : string;
+        [Accessor] _start  : int;
+        [Accessor] _length : int;
+        
+        public End : int
+        {
+            get { Start + Length }
+        }
+        
+        public this(handle : SourceHandle, source : string)
+        {
+            this(handle, source, 0, source.Length);
+        }
+        
+        private EnumerateCharacters() : Seq[char]
+        {
+            for (mutable i = Start; i < Start + Length; i++)
+            {
+                yield Source[i];
+            }
+        }
+        
+        public Take(offset : int, length : int) : SubString
+        {
+            CheckBounds(offset, "offset");
+            CheckBounds(length, "length");
+            CheckBounds(offset + length, "length");
+            
+            SubString(Handle, Source, Start + offset, length);
+        }
+        
+        public SplitByChar(predicate : char -> bool) : SubString * SubString
+        {            
+            result : {
+            
+                for (mutable i = Start; i < End; i++)
+                {
+                    def ch = Source[i];
+                
+                    unless (predicate(ch))
+                    {
+                        def head = SubString(Handle, Source, Start, i - Start);
+                        def tail = Skip(head.Length);
+                    
+                        result((head, tail))
+                    }
+                };
+                
+                (this, Skip(Length))
+                
+            }
+        }
+        
+        public Skip(offset : int) : SubString
+        {
+            if (offset == Length)
+            {
+                SubString(Handle, Source, Start + offset, 0);
+            }
+            else
+            {
+                CheckBounds(offset, "offset");
+            
+                SubString(Handle, Source, Start + offset, Length - offset);
+            }
+        }
+        
+        public Item[index : int] : char
+        {
+            get
+            {
+                CheckBounds(index, "index");
+                
+                _source[_start + index];
+            }
+        }
+        
+        public Location : Loc
+        {
+            get
+            {
+                Loc(Handle, Start, Length);
+            }
+        }
+        
+        public override ToString() : string
+        {
+            String(ToArray());
+        }
+        
+        private CheckBounds(value : int, varName : string) : void
+        {
+            when (value < 0)       throw ArgumentOutOfRangeException(varName, $"$varName cannot be negative");
+            when (value >= Length) throw ArgumentOutOfRangeException(varName, $"$varName cannot be bigger than substring length");
+        }
+    }
+}

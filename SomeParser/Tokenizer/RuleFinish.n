@@ -1,0 +1,37 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Tokenizer
+{
+    /// <summary>
+    /// Finishes the parsing
+    /// </summary>
+    class RuleFinish : Rule[TokenizerState]
+    {
+        
+        // priority 10
+        public this()
+        {
+            base(10);
+        }
+        
+        // is applicable if there is no remaining text
+        public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
+        {
+            engine.Data.RemainingText.Length == 0;
+        }
+        
+        // stops engine
+        public override Apply(engine : RuleEngine[TokenizerState]) : void
+        {
+            engine.IsFinished = true;
+        }
+        
+    }
+}

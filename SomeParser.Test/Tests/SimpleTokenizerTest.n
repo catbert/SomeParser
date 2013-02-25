@@ -1,0 +1,45 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using SomeParser;
+using SomeParser.Tokenizer;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Description of SimpleTokenizerTest.
+    /// </summary>
+    class SimpleTokenizerTest : Test
+    {
+        protected override RunImpl() : Seq[TestResult]
+        {
+            Name = "Simple tokenizer test";
+            
+            yield CheckFinish("", "Empty string");
+            yield CheckFinish("   ", "Spaces");
+            yield CheckFinish("  f ", "Letter");
+            yield CheckFinish("g", "Another letter");
+            yield CheckFinish("  ^ ", "Sign");
+            yield CheckFinish("  ^,@ ", "Signs");
+            yield CheckFinish("  two words ", "Two words");
+            yield CheckFinish("  two \r\n words ", "Two words with line break");
+        }
+        
+        CheckFinish(text : string, message : string) : TestResult
+        {
+            def proj = Project();
+            def tok = MainTokenizer();
+            
+            proj.Sources.Add(text);
+            
+            _ = tok.Tokenize(proj, 0);
+            
+            CheckTrue(() => tok.Messages.Count() == 0, $"Tokenize $message");
+        }
+    }
+}

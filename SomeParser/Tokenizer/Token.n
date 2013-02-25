@@ -1,0 +1,43 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Tokenizer
+{
+    /// <summary>
+    /// Represents a token in code stream
+    /// </summary>
+    [Record]
+    public variant Token : Locatable
+    {
+        | Comment
+        | Sign
+        | Word
+        | Text
+        | Number
+        | Custom { data : CustomToken }
+        
+        public override ToString() : string
+        {
+            def suffix = match (this)
+            {
+                | Custom(data) => data.ToString()
+                | _ => GetType().Name
+            }
+            
+            $"$Location $suffix"
+        }
+        
+        public ToString(prj : Project) : string
+        {
+            def text = prj.Sources[Location.Source].Substring(Location.Index, Location.Length);
+            ToString() + $" {$text}"
+        }
+        
+    }
+}

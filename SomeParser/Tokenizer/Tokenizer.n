@@ -1,0 +1,36 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Tokenizer
+{
+    /// <summary>
+    /// Tokenizes character stream
+    /// </summary>
+    public class MainTokenizer : RuleEngine[TokenizerState]
+    {
+        
+        public this()
+        {
+            Rules.AddRange([RuleFinish(), RuleWhitespace(), RuleSign(), RuleWord(), RuleNumber() ]);
+        }
+        
+        public Tokenize(text : SubString) : Seq[Token]
+        {
+            Data = TokenizerState(text);
+            Run();
+            Data.Tokens;
+        }
+        
+        public Tokenize(project : Project, handle : SourceHandle) : Seq[Token]
+        {
+            Tokenize(SubString(handle, project.Sources[handle]))
+        }
+        
+    }
+}

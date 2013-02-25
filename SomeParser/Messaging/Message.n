@@ -1,0 +1,55 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// A message that compiler can output
+    /// </summary>
+    [Record]
+    public variant Message : Locatable
+    {
+        | Error
+        | Warning
+        | Info
+        
+        [Accessor] _text : string;
+        [Accessor] _code : option[int];
+        
+        public override ToString() : string
+        {
+            $"$Location $(GetCode()) $Text"
+        }
+        
+        public ConsoleWrite() : void
+        {
+            ConsoleTools.WriteInColor(GetColor(), ToString());
+        }
+        
+        public GetColor() : ConsoleColor
+        {
+            match (this)
+            {
+                | Error => ConsoleColor.Red 
+                | Warning => ConsoleColor.Yellow
+                | Info => ConsoleColor.Blue
+            }
+        }
+        
+        private GetCode() : string
+        {
+            match (Code)
+            {
+                | Some(c) => c.ToString() + " "
+                | _ => "";
+            }
+        }
+        
+    }
+}

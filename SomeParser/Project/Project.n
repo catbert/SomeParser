@@ -1,0 +1,24 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    type Source = string;
+    type SourceHandle = int;
+    
+    /// <summary>
+    /// Represents a project to be parsed
+    /// </summary>   
+    public class Project
+    {
+        
+        [Accessor] _sources : List[Source] = List();
+        
+    }
+}

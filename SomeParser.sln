@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{EDCC3B85-0BAD-11DB-BC1A-00112FDE8B61}") = "SomeParser", "SomeParser\SomeParser.nproj", "{C1C41239-DF31-43A2-ABD4-E7961E02C1B2}"
+EndProject
+Project("{EDCC3B85-0BAD-11DB-BC1A-00112FDE8B61}") = "SomeParser.Test", "SomeParser.Test\SomeParser.Test.nproj", "{53D56567-4881-4735-B19F-41745FFA77B1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1C41239-DF31-43A2-ABD4-E7961E02C1B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1C41239-DF31-43A2-ABD4-E7961E02C1B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1C41239-DF31-43A2-ABD4-E7961E02C1B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1C41239-DF31-43A2-ABD4-E7961E02C1B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53D56567-4881-4735-B19F-41745FFA77B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53D56567-4881-4735-B19F-41745FFA77B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53D56567-4881-4735-B19F-41745FFA77B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53D56567-4881-4735-B19F-41745FFA77B1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

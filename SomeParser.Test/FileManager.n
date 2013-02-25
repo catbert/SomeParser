@@ -1,0 +1,87 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Manages test case files
+    /// </summary>
+    class FileManager
+    {
+        
+        [Accessor] _curDir : string = Environment.CurrentDirectory;
+        
+        public this()
+        {
+        }
+        
+        public this(folder : string)
+        {
+            _curDir = Path.Combine(_curDir, folder);
+        }
+        
+        public Delete(file : string) : void
+        {
+            def file = Path.Combine(CurDir, file);
+            
+            when (File.Exists(file)) File.Delete(file)
+        }
+        
+        public Exists(file : string) : bool
+        {
+            def file = Path.Combine(CurDir, file);
+            
+            File.Exists(file)
+        }
+        
+        public ReadFile(file : string) : string
+        {
+            def file = Path.Combine(CurDir, file);
+            
+            if (File.Exists(file))
+            {
+                using (rdr = StreamReader(file)) rdr.ReadToEnd()
+            }
+            else
+                null
+        }
+        
+        public WriteFile(file : string, text : string) : void
+        {
+            def file = Path.Combine(CurDir, file);
+            
+            using (wrt = StreamWriter(file))
+            {
+                wrt.Write(text)
+            }
+        }
+        
+        public ChangeExtension(file : string, newExtension : string) : string
+        {
+            def clean = Path.GetFileNameWithoutExtension(file);
+            clean + if (string.IsNullOrEmpty(newExtension)) "" else "." + newExtension
+        }
+        
+        public GetFiles(pattern : string) : Seq[string]
+        {
+            def dir = DirectoryInfo(CurDir);
+            
+            if (dir.Exists)
+            {
+                dir.EnumerateFiles(pattern, SearchOption.TopDirectoryOnly).Select(_.Name);
+            }
+            else
+            { 
+                []
+            }
+        }
+        
+    }
+}

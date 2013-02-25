@@ -1,0 +1,29 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// Default implementation of ILocatable
+    /// </summary>
+    public class Locatable : ILocatable
+    {
+        public Location : Loc
+        {
+            get;
+            protected set;
+        }
+        
+        public this(location : Loc)
+        {
+            this.Location = location;
+        }
+        
+    }
+}

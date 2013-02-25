@@ -1,0 +1,21 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// Allows to get location information on any language object
+    /// </summary>
+    public interface ILocatable
+    {
+        
+        Location : Loc { get; }
+        
+    }
+}

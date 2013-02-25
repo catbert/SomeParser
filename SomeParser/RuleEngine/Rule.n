@@ -1,0 +1,31 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// Rule that is used in rule engine
+    /// </summary>
+    [Record]
+    public abstract class Rule[T] : IComparable[Rule[T]]
+    {
+        
+        [Accessor] _priority : int;
+        
+        public CompareTo(other : Rule[T]) : int
+        {
+            -this.Priority.CompareTo(other.Priority); // rules with lesser priority go last
+        }
+        
+        public abstract IsApplicable(engine : RuleEngine[T]) : bool;
+        
+        public abstract Apply(engine : RuleEngine[T]) : void;
+        
+    }
+}

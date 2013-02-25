@@ -1,0 +1,98 @@
+﻿using Nemerle;
+using Nemerle.Assertions;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// Rule engine for SomeParser
+    /// </summary>
+    public class RuleEngine[T]
+    {
+        
+        _messages : List[Message] = List();
+        [Accessor] _rules : List[ Rule[T] ] = List();
+        
+        public Data : T
+        {
+            get;
+            set;
+        }
+        
+        public IsFinished : bool
+        {
+            get;
+            set;
+        }
+                
+        #region Messaging
+        
+        public Messages : IEnumerable[Message]
+        {
+            get { _messages }
+        }
+        
+        public AddMessage(msg : Message) : void
+        {
+            _messages.Add(msg);
+        }
+        
+        public CriticalError(msg : Message.Error) : void
+        {
+            AddMessage(msg);
+            IsFinished = true;
+        }
+        
+        public HasInternalErrors : bool
+        {
+            get
+            {
+                Messages.Exists(x => x.Code is Some(1))
+            }
+        }
+        
+        public HasErrors : bool
+        {
+            get
+            {
+                Messages.Exists(_ is Message.Error)
+            }
+        }
+        
+        #endregion
+        
+        public Run() : void
+        {
+            Rules.Sort();
+            
+            while (!IsFinished)
+            {
+                def rule = Rules.Find(x => x.IsApplicable(this));
+                
+                if (rule is null) 
+                {
+                    CriticalError(NoRuleError);
+                    IsFinished = true;
+                }
+                else
+                {
+                    rule.Apply(this);
+                }
+            }
+        }
+        
+        static NoRuleError : Message.Error
+        {
+            get
+            {
+                Message.Error(Loc(), "No rules left", Some(1));
+            }
+        }
+    }
+}

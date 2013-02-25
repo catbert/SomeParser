@@ -1,0 +1,61 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Tests of Substring class
+    /// </summary>
+    class SubStringTest : Test
+    {
+        
+        protected override RunImpl() : Seq[TestResult]
+        {
+            Name = "SubString test";
+            
+            def ss = SubString(0, "0123456789");
+            def ts = ss.Take(3, 5);
+            
+            TestSubString(ss)
+                .Concat(TestSubString(ts))
+                .Concat([ CheckFalse(() => ts.Start == 0, "Start not zero") ])
+                .Concat(TestText(ss, "0123456789"))
+                .Concat(TestText(ts, "34567"))
+                .Concat(TestLocation(ss, ts))
+        }
+        
+        private TestSubString(ss : SubString) : Seq[TestResult]
+        {
+            yield CheckException.[ArgumentOutOfRangeException](() => _ = ss[-1], "Negative index");
+            yield CheckException.[ArgumentOutOfRangeException](() => _ = ss[ss.Length], "Big index");
+            
+            yield CheckTrue(() => ss[0] == ss.First(), "First element ok");
+            yield CheckTrue(() => ss.Count() == ss.Length, "Length ok");
+            
+            yield CheckTrue(() => ss.ToString() == ss.Source.Substring(ss.Start, ss.Length), "ToString is correct");
+        }
+        
+        private TestText(ss : SubString, s : string) : Seq[TestResult]
+        {
+            yield CheckTrue(() => ss.ToString() == s, $"Substring $ss equals $s");
+        }
+        
+        private TestLocation(params sss : array[SubString]) : Seq[TestResult]
+        {
+            Name = "SubString location test";
+            foreach (ss in sss)
+            {
+                def loc = ss.Location;
+                yield CheckTrue(() => ss.Start == loc.Index, "SubString index correct");
+                yield CheckTrue(() => ss.Length == loc.Length, "SubString length correct");
+            }
+        }
+
+    }
+}

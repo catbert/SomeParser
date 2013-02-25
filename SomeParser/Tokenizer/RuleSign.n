@@ -1,0 +1,40 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Tokenizer
+{
+    /// <summary>
+    /// Finishes the parsing
+    /// </summary>
+    class RuleSign : Rule[TokenizerState]
+    {
+        
+        // priority 5
+        public this()
+        {
+            base(5);
+        }
+        
+        // is applicable if char is sign
+        public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
+        {
+            Char.IsSymbol(engine.Data.RemainingText[0]) || Char.IsPunctuation(engine.Data.RemainingText[0])
+        }
+        
+        // stops engine
+        public override Apply(engine : RuleEngine[TokenizerState]) : void
+        {
+            def (tokenSubString, tail) = engine.Data.RemainingText.SplitByChar( x => Char.IsSymbol(x) || Char.IsPunctuation(x) );
+            
+            engine.Data.Tokens.Add(Token.Sign(tokenSubString.Location));
+            engine.Data.RemainingText = tail;
+        }
+        
+    }
+}

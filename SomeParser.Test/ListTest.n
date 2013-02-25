@@ -1,0 +1,41 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Extensions;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Test
+{
+    /// <summary>
+    /// Description of ListTest.
+    /// </summary>
+    class ListTest : Test
+    {
+        
+        [Accessor] _tests : List[Test] = List();
+        
+        protected override RunImpl() : Seq[TestResult]
+        {
+            Tests.SelectMany(x => x.Run());
+        }
+        
+        
+        public static RootTest : ListTest
+        {
+            get 
+            {
+                ListTest() <- { Tests <- [
+                    SubStringTest(),
+                    RuleEngineTest(),
+                    SimpleTokenizerTest(),
+                    TokenizerIOTest()
+                ]};
+            }
+        }
+        
+    }
+}
