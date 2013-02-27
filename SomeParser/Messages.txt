@@ -1,2 +1,2 @@
-﻿E-RuleEngine-1 NoRules Internal Parser Error: No rules are applicable for such system state
+﻿E-Internal-1 NoRules Internal Parser Error: No rules are applicable for such system state
 E-Tokenizer-1 BadNumber This text looks like a number but cannot be parsed as such.

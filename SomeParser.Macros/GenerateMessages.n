@@ -45,7 +45,7 @@ namespace SomeParser.Macros
             def messageInfos = Lines(messagesFile).Map(MessageInfo.FromString) |> StripNones;
             
             def facilities = GetFacilityMap(messageInfos);
-            def facilityMap = s => match (facilities.FindIndex(_ == s)) { | -1 => None() | i => Some(i) };
+            def facilityMap = s => match (facilities.FindIndex(_ == s)) { | -1 => None() | i => Some(i + 1) };
             
             def builder = typer.Env.Define(<[ decl:
                 internal module BuiltinMessages
@@ -56,6 +56,8 @@ namespace SomeParser.Macros
             
             messageInfos.Iter(mi => Message.Warning(mi.ToString()));
             messageInfos.Iter(mi => _ = builder.Define(mi.ToFunction(facilityMap)));
+            
+            MessageInfo.GenerateFacilityMappings(builder, facilities);
             
             builder.Compile();
             
@@ -123,5 +125,7 @@ namespace SomeParser.Macros
             
             facilities
         }
+        
+
     }
 }

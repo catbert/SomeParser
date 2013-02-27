@@ -93,5 +93,29 @@ namespace SomeParser.Macros
                 | Severity.Info => <[ Message.Info ]>                
             }
         }
+        public static GenerateFacilityMappings(builder : TypeBuilder, facilities : List[string]) : void
+        {
+            def facilitiesModule = builder.DefineNestedType(<[decl:
+                public module Facilities
+                {
+                }
+            ]>);
+            
+            def fIndex(f, i)
+            {
+                def name = Name(f) |> Splicable.Name;
+                
+                <[ decl:
+                    public $name : int { get { $(i + 1) } }
+                ]>
+            }
+            
+            foreach (facility in facilities with i)
+            {
+                _ = facilitiesModule.Define(fIndex(facility, i));
+            }
+            
+            facilitiesModule.Compile();
+        }
     }
 }
