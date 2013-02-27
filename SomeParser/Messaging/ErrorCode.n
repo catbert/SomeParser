@@ -1,0 +1,71 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Extensions;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// Represents an error code. It is a signed int.
+    /// If Code is less than 1, ErrorCode is undefined. Otherwise, its low bits are a Serial number, and high bits are a Facility number
+    /// </summary>
+    [Record, StructuralEquality]
+    public struct ErrorCode
+    {
+        static CodeMask : int = 0xFFFF;
+        
+        /// Actual error code
+        [Accessor] _value : Int32;
+                
+        /// <summary>
+        /// Represents an error facility. This is a number for the component of parser which produced an error.
+        /// E. g. both Tokenizer and Typer may have error number 3, but they still can be distinguished by the Facility number
+        /// </summary>
+        public Facility : int
+        {
+            get
+            {
+                if (Value <= 0) 0 else Value >> 16
+            }
+        }
+        
+        /// <summary>
+        /// Represents an actual serial number for an error.
+        /// </summary>
+        public Serial : int
+        {
+            get 
+            {
+                if (Value <= 0) 0 else Value & CodeMask
+            }
+        }
+        
+        public this(facility : int, serial : int)
+        {
+            this(facility << 16 & serial)
+        }
+        
+        public static @:(code : int) : ErrorCode
+        {
+            ErrorCode(code)
+        }
+        
+        public override ToString() : string
+        {
+            if (Value <= 0)
+            {
+                $"Undefined error code ($Value)"
+            }
+            else
+            {
+                def hexCode = Value.ToString("X");
+                $"$hexCode (facility $Facility, serial $Serial)";
+            }
+        }
+    }
+}

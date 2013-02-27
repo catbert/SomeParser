@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace SomeParser
 {
+    
+    [assembly: SomeParser.Macros.GenerateMessages]
+    
     /// <summary>
     /// A message that compiler can output
     /// </summary>
@@ -20,7 +23,7 @@ namespace SomeParser
         | Info
         
         [Accessor] _text : string;
-        [Accessor] _code : option[int];
+        [Accessor] _code : ErrorCode;
         
         public override ToString() : string
         {
@@ -36,7 +39,7 @@ namespace SomeParser
         {
             match (this)
             {
-                | Error => ConsoleColor.Red 
+                | Error => ConsoleColor.Red
                 | Warning => ConsoleColor.Yellow
                 | Info => ConsoleColor.Blue
             }
@@ -44,11 +47,7 @@ namespace SomeParser
         
         private GetCode() : string
         {
-            match (Code)
-            {
-                | Some(c) => c.ToString() + " "
-                | _ => "";
-            }
+            Code.ToString()
         }
         
     }

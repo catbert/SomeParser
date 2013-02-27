@@ -1,0 +1,127 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Compiler;
+using Nemerle.Compiler.Parsetree;
+using Nemerle.Compiler.Typedtree;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using System.IO;
+using System.IO.Path;
+
+namespace SomeParser.Macros
+{
+    [MacroUsage(MacroPhase.BeforeInheritance, MacroTargets.Assembly)]
+    macro GenerateMessages()
+    {
+        GenerateMessagesImpl.DoTransform(Macros.ImplicitCTX())
+    }
+  
+    module GenerateMessagesImpl
+    {
+        RunOnceMark : string = "__GenerateMessages__run";
+        
+        public DoTransform(typer : Typer) : void
+        {
+            def userData = typer.Manager.UserData;
+            
+            unless (userData.Contains(RunOnceMark))
+            {
+                DoTransformImpl(typer);
+                userData.Add(RunOnceMark, Object())
+            }
+        }
+        
+        public DoTransformImpl(typer : Typer) : void
+        {
+            Macros.DefineCTX(typer);
+            
+            def projDir = GetDirectoryName(typer.Manager.Options.ProjectPath);
+            def messagesFile = Combine(projDir, "messages.txt");
+            def messageInfos = Lines(messagesFile).Map(MessageInfo.FromString) |> StripNones;
+            
+            def facilities = GetFacilityMap(messageInfos);
+            def facilityMap = s => match (facilities.FindIndex(_ == s)) { | -1 => None() | i => Some(i) };
+            
+            def builder = typer.Env.Define(<[ decl:
+                internal module BuiltinMessages
+                {
+                    
+                }
+            ]>);
+            
+            messageInfos.Iter(mi => Message.Warning(mi.ToString()));
+            messageInfos.Iter(mi => _ = builder.Define(mi.ToFunction(facilityMap)));
+            
+            builder.Compile();
+            
+            
+        }
+                
+        private Lines(fileName : string) : Seq[string]
+        {
+            if (File.Exists(fileName))
+            {
+                mutable reader;
+                try
+                {
+                    reader = StreamReader(fileName);
+                    LinesImpl(reader).ToList()
+                }
+                catch
+                {
+                    | _ is Exception => []
+                }
+                finally
+                {
+                    unless (reader is null) reader.Dispose();
+                }
+            }
+            else []
+        }
+        
+        private LinesImpl(reader : StreamReader) : Seq[string]
+        {
+            mutable line = "";
+            
+            while ( { line = reader.ReadLine(); !(line is null) } )
+            {
+                yield line
+            }
+            
+            reader.Close()
+        }
+        
+        private StripNones[T](xs : list[option[T]]) : list[T]
+        {
+            def strip(xs, acc)
+            {
+                match (xs)
+                {
+                | [] => acc
+                | Some(x) :: tail => strip(tail, x :: acc)
+                | None :: tail    => strip(tail, acc)
+                }
+            }
+            
+            strip(xs, []).Reverse()
+        }
+        
+        
+        private GetFacilityMap(infos : list[MessageInfo]) : List[string]
+        {
+            def facilities = List();
+            
+            foreach (info in infos)
+            {
+                unless (facilities.Contains(info.FacilityName)) facilities.Add(info.FacilityName);
+            }
+            
+            facilities
+        }
+    }
+}

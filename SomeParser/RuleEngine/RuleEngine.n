@@ -53,7 +53,7 @@ namespace SomeParser
         {
             get
             {
-                Messages.Exists(x => x.Code is Some(1))
+                Messages.Exists(x => x.Code.Facility == 1)
             }
         }
         
@@ -77,7 +77,7 @@ namespace SomeParser
                 
                 if (rule is null) 
                 {
-                    CriticalError(NoRuleError);
+                    CriticalError(BuiltinMessages.RuleEngine_NoRules(Loc.Empty));
                     IsFinished = true;
                 }
                 else
@@ -87,12 +87,5 @@ namespace SomeParser
             }
         }
         
-        static NoRuleError : Message.Error
-        {
-            get
-            {
-                Message.Error(Loc(), "No rules left", Some(1));
-            }
-        }
     }
 }

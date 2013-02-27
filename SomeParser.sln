@@ -5,6 +5,8 @@ Project("{EDCC3B85-0BAD-11DB-BC1A-00112FDE8B61}") = "SomeParser", "SomeParser\So
 EndProject
 Project("{EDCC3B85-0BAD-11DB-BC1A-00112FDE8B61}") = "SomeParser.Test", "SomeParser.Test\SomeParser.Test.nproj", "{53D56567-4881-4735-B19F-41745FFA77B1}"
 EndProject
+Project("{EDCC3B85-0BAD-11DB-BC1A-00112FDE8B61}") = "SomeParser.Macros", "SomeParser.Macros\SomeParser.Macros.nproj", "{2568B3D0-15C2-4947-84E7-F6829C4FBF68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{53D56567-4881-4735-B19F-41745FFA77B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53D56567-4881-4735-B19F-41745FFA77B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53D56567-4881-4735-B19F-41745FFA77B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2568B3D0-15C2-4947-84E7-F6829C4FBF68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2568B3D0-15C2-4947-84E7-F6829C4FBF68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2568B3D0-15C2-4947-84E7-F6829C4FBF68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2568B3D0-15C2-4947-84E7-F6829C4FBF68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

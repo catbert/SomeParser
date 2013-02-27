@@ -31,13 +31,13 @@ namespace SomeParser.Tokenizer
             {
                 | (x, _) when Char.IsDigit(x)
                 
+                | ('+', '.')
+                | ('-', '.') => true
+                
                 | ('+', x)
                 | ('-', x)
                 | ('.', x)
                     => Char.IsDigit(x)
-                
-                | ('+', '.')
-                | ('-', '.') => true
                 
                 | _ => false
             }
@@ -49,31 +49,103 @@ namespace SomeParser.Tokenizer
             def text = engine.Data.RemainingText;
                 
             mutable i = 0;
-            mutable state = 0; // 0 - at sign, 1 - at int, 2 - at dot, 3 - at dec, 4 - at e, 5 - at expsign, 6 - at exp
+            mutable state = 0; // 0 - at sign, 1 - at int, 2 - at dot, 3 - at dec, 4 - at e, 5 - at expsign, 6 - at exp, 7 - at end
             mutable error = false;
+            mutable isDecimal = false;
             
             result : {
-                
                 
                 while (i < text.Length)
                 {
                     def symbol = text[i];
-                    def nextSymbol = if (i + 1 < text.Length) text[i + 1] else 0 :> char;
-                    
-                    match (state, symbol, nextSymbol)
+                                        
+                    match (state, symbol)
                     {
                         // 0 - at sign
-                        | (0, '+', _) 
-                        | (0, '-', _) => state = 1; i++;
+                        | (0, '+') 
+                        | (0, '-') => state = 1; i++;
                         
-                        | (0, '.', _) => state = 2;
+                        | (0, '.') => state = 2;
                         
-                        | (0,  d , _) when Char.IsDigit(d) => state = 1;
+                        | (0,  d ) when Char.IsDigit(d) => state = 1;
                         
-                        | (0,  _ , _) => error = true; result(i)
+                        | (0,  _ ) => error = true; result()
+                        
+                        
+                        // 1 - at int
+                        | (1, '.') => state = 2;
+                        
+                        | (1, 'e')
+                        | (1, 'E') => state = 4;
+                        
+                        | (1,  d ) when Char.IsDigit(d) => i++
+                        
+                        | (1,  _ ) => state = 7
+                        
+                        
+                        // 2 - at dot
+                        | (2, '.') => isDecimal = true; state = 3; i++
+                        
+                        | (2, 'e')
+                        | (2, 'E') => state = 4;
+                        
+                        | (2,  _ ) => state = 7
+                        
+                        
+                        // 3 - at dec
+                        | (3, 'e') 
+                        | (3, 'E') => state = 4;
+                        
+                        | (3,  d ) when Char.IsDigit(d) => i++
+                        
+                        | (3,  _ ) => state = 7
+                        
+                        
+                        // 4 - at e
+                        | (4, 'e') 
+                        | (4, 'E') => state = 5; i++
+                        
+                        | (4,  _ ) => error = true; result()
+                        
+                        
+                        // 5 - at exp sign
+                        | (5, '+') 
+                        | (5, '-') => state = 6; i++;
+                        
+                        | (5,  d ) when Char.IsDigit(d) => state = 6;
+                        
+                        | (5,  _ ) => error = true; result()
+                        
+                        
+                        // 6 - at exp                
+                        | (6,  d ) when Char.IsDigit(d) => i++
+                        
+                        | (6,  _ ) => state = 7
+                        
+                        
+                        // 7 - at end
+                        | (7,  c ) when Char.IsWhiteSpace(c) || Char.IsPunctuation(c) => result()              
+                        
+                        | _ => error = true; result()
                     }
+                    
                 }
+                
+                // at the end of substring, not finished
+                when (state < 6) error = true;
             }
+            
+            def token = if (error)
+            {
+                Token.Error(engine.Data.RemainingText.Take(0, i).Location);
+            }
+            else 
+            {
+                Token.Number(engine.Data.RemainingText.Take(0, i - 1).Location, isDecimal);
+            }
+            
+            engine.Data.Tokens.Add(token);
+            engine.Data.RemainingText = engine.Data.RemainingText.Skip(token.Location.Length);
         }
         
     }

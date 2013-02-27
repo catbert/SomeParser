@@ -141,7 +141,7 @@ namespace SomeParser.Test
             
             public override Apply(engine : RuleEngine[(int * int)]) : void
             {
-                engine.CriticalError(Message.Error(Loc(), "Negative a or b", None()));
+                engine.CriticalError(Message.Error(Loc(), "Negative a or b", 0));
             }
             
             public override IsApplicable(engine : RuleEngine[(int * int)]) : bool

@@ -19,6 +19,11 @@ namespace SomeParser
         [Accessor] _index       : int;
         [Accessor] _length      : int;   
         
+        public static Empty : Loc
+        {
+            get { Loc() }
+        }
+        
         public override ToString() : string
         {
             $"[$Source: $Index, $Length]";

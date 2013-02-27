@@ -5,20 +5,18 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{c1c41239-df31-43a2-abd4-e7961e02c1b2}</ProjectGuid>
+    <ProjectGuid>{2568b3d0-15c2-4947-84e7-f6829c4fbf68}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SomeParser</RootNamespace>
-    <AssemblyName>SomeParser</AssemblyName>
+    <RootNamespace>SomeParser.Macros</RootNamespace>
+    <AssemblyName>SomeParser.Macros</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NoStdLib>true</NoStdLib>
     <NemerleVersion>Net-4.0</NemerleVersion>
     <NemerleBinPathRoot Condition=" '$(NemerleBinPathRoot)' == '' ">$(ProgramFiles)\Nemerle</NemerleBinPathRoot>
     <Nemerle Condition=" '$(Nemerle)' == '' ">$(NemerleBinPathRoot)\$(NemerleVersion)</Nemerle>
-    <Name>SomeParser</Name>
-    <StartupObject />
-    <ApplicationIcon />
+    <Name>SomeParser.Macros</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -54,97 +52,32 @@
     <Reference Include="Nemerle">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(Nemerle)\Nemerle.dll</HintPath>
-      <Private>True</Private>
+    </Reference>
+    <Reference Include="Nemerle.Compiler">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(Nemerle)\Nemerle.Compiler.dll</HintPath>
     </Reference>
     <MacroReference Include="Nemerle.Linq">
       <HintPath>$(Nemerle)\Nemerle.Linq.dll</HintPath>
     </MacroReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleTools.n">
+    <Compile Include="GenerateMessages.n">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ILocatable.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Loc.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Locatable.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Main.n" />
-    <Compile Include="Messaging\ErrorCode.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Messaging\Message.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Project\Project.n">
+    <Compile Include="MessageInfo.n">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.n" />
-    <Compile Include="RuleEngine\Rule.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="RuleEngine\RuleEngine.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="SubString\SubString.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\CustomToken.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\RuleFinish.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\RuleNumber.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\RuleSign.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\RuleWhitespace.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\RuleWord.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\Token.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\Tokenizer.n">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tokenizer\TokenizerState.n">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Messaging" />
-    <Folder Include="RuleEngine" />
-    <Folder Include="Tokenizer" />
-    <Folder Include="Project" />
-    <Folder Include="SubString" />
     <Folder Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SomeParser.Macros\SomeParser.Macros.nproj">
-      <Name>SomeParser.Macros</Name>
-      <Project>{2568b3d0-15c2-4947-84e7-f6829c4fbf68}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Messages.txt">
-      <SubType>Content</SubType>
-    </Content>
   </ItemGroup>
   <Import Project="$(Nemerle)\Nemerle.MSBuild.targets" />
   <!--
 		To modify your build process, add your task inside one of the targets below and uncomment it. 
 		Other similar extension points exist, see Microsoft.Common.targets.
+
 	<Target Name="BeforeBuild">
 	</Target>
 	<Target Name="AfterBuild">

@@ -1,0 +1,97 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Nemerle.Compiler;
+using Nemerle.Compiler.Parsetree;
+
+namespace SomeParser.Macros
+{
+    enum Severity
+    {
+        | Error
+        | Warning
+        | Info
+    }
+    
+    /// <summary>
+    /// Structured message data to use in GenerateMessages macro
+    /// </summary>
+    [Record]
+    class MessageInfo
+    {
+        [Accessor] _serial : int;
+        [Accessor] _facilityName : string;
+        [Accessor] _messageName : string;
+        [Accessor] _messageText : string;
+        [Accessor] _messageType : Severity;
+        
+        // messages.txt entry
+        // E-Tokenizer-1 BadNumber Some message
+        // {Severity}-{FacilityName}-{Serial} {MessageName} {MessageText}
+        
+        public static FromString(text : string) : option[MessageInfo]
+        {
+            regexp match (text)
+            {
+                | @"^(?<regsev>\w)\-(?<regfacility>\w+)\-(?<regserial>\d+)\s+(?<regname>\w+)\s+(?<regtext>.+)" => 
+                    Some(MessageInfo(int.Parse(regserial), regfacility, regname, regtext, GetSeverity(regsev)))
+                | _ => None()
+            }
+        }
+        
+        private static GetSeverity(regsev : string) : Severity
+        {
+            | "E" => Severity.Error
+            | "W" => Severity.Warning
+            | "I" => Severity.Info
+            
+            |  _  => Severity.Error
+        }
+        
+        private static GetSeverityString(sev : Severity) : string
+        {
+            | Severity.Error    => "E"
+            | Severity.Warning  => "W"
+            | Severity.Info     => "I"
+        }
+        
+        public override ToString() : string
+        {
+            $"($(GetSeverityString(MessageType))) $FacilityName-$Serial $MessageName $MessageText"
+        }
+        
+        public ToFunction(facilityMap : string -> option[int]) : ClassMember.Function
+        {            
+            def mName = Name($"$(FacilityName)_$MessageName") |> Splicable.Name;
+            def varOption = MessageTypeToVariantOption();
+            def code = match (facilityMap(FacilityName))
+            {
+                | Some(i) => <[ ErrorCode($i, $Serial) ]>
+                | _ => <[ ErrorCode() ]>
+            }
+        
+            <[decl:
+                public $mName(loc : Loc) : $varOption
+                {
+                    $varOption(loc, $MessageText, $code)
+                }
+            ]>
+        }
+        
+        private MessageTypeToVariantOption() : PExpr
+        {
+            match (MessageType)
+            {
+                | Severity.Error => <[ Message.Error ]>
+                | Severity.Warning => <[ Message.Warning ]>
+                | Severity.Info => <[ Message.Info ]>                
+            }
+        }
+    }
+}
