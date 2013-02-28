@@ -19,8 +19,8 @@ namespace SomeParser.Tokenizer
         | Sign
         | Word
         | Text
-        | Number { isDecimal : bool        }
-        | Custom { data      : CustomToken }
+        | Number { isDecimal : bool; value : Decimal }
+        | Custom { data      : CustomToken           }
         | Error
         
         public override ToString() : string

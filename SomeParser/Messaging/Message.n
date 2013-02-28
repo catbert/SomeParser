@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace SomeParser
 {
-    
+    // generate builtin compiler messages
     [assembly: SomeParser.Macros.GenerateMessages]
     
     /// <summary>

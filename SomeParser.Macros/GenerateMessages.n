@@ -54,7 +54,7 @@ namespace SomeParser.Macros
                 }
             ]>);
             
-            messageInfos.Iter(mi => Message.Warning(mi.ToString()));
+            //messageInfos.Iter(mi => Message.Warning(mi.ToString()));
             messageInfos.Iter(mi => _ = builder.Define(mi.ToFunction(facilityMap)));
             
             MessageInfo.GenerateFacilityMappings(builder, facilities);
