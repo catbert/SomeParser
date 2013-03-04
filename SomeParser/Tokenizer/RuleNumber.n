@@ -23,26 +23,10 @@ namespace SomeParser.Tokenizer
             base(5);
         }
         
-        // is applicable if char is sign
+        // is applicable if char is digit
         public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
         {
-            def symbol = engine.Data.RemainingText[0];
-            def nextSymbol = if (engine.Data.RemainingText.Length > 1) engine.Data.RemainingText[1] else 0 :> char;
-            
-            match (symbol, nextSymbol)
-            {
-                | (x, _) when Char.IsDigit(x)
-                
-                | ('+', '.')
-                | ('-', '.') => true
-                
-                | ('+', x)
-                | ('-', x)
-                | ('.', x)
-                    => Char.IsDigit(x)
-                
-                | _ => false
-            }
+            Char.IsDigit(engine.Data.RemainingText[0])
         }
         
         static AllNumberStyles : NumberStyles = NumberStyles.Any;
@@ -51,27 +35,11 @@ namespace SomeParser.Tokenizer
         // stops engine
         public override Apply(engine : RuleEngine[TokenizerState]) : void
         {   
-            mutable metDigit;
-            mutable value;
-        
-            // split number from all other symbols
-            def (tokenSubString, tail) = engine.Data.RemainingText.SplitByString( s => 
-            {
-                if (metDigit)
-                {
-                    match (s.Last())
-                    {
-                        | '+' | '-' | 'e' | 'E' | '.' => true
-                        | d when char.IsDigit(d) => metDigit = true; true
-                        | _ => false
-                    }
-                }
-                else
-                {
-                    Decimal.TryParse(s, AllNumberStyles, InvariantLocale, out value);
-                }
-            });
+            def (tokenSubString, tail) = engine.Data.RemainingText.SplitByChar( Char.IsDigit );
+            
+            engine.Data.Tokens.Add(Token.Number(tokenSubString.Location, tokenSubString));
+            engine.Data.RemainingText = tail;
         }
-        
+                
     }
 }

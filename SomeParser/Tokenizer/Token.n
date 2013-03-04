@@ -13,15 +13,25 @@ namespace SomeParser.Tokenizer
     /// Represents a token in code stream
     /// </summary>
     [Record]
-    public variant Token : Locatable
+    public variant Token : ILocatable
     {
         | Comment
         | Sign
         | Word
         | Text
-        | Number { isDecimal : bool; value : Decimal }
+        | Number { /*isDecimal : bool; value : Decimal*/ }
         | Custom { data      : CustomToken           }
         | Error
+        
+        [Accessor] _value : SubString;
+        
+        public Location : Loc
+        {
+            get
+            {
+                Value.Location
+            }
+        }
         
         public override ToString() : string
         {
@@ -39,6 +49,6 @@ namespace SomeParser.Tokenizer
             def text = prj.Sources[Location.Source].Substring(Location.Index, Location.Length);
             ToString() + $" {$text}"
         }
-        
+                        
     }
 }

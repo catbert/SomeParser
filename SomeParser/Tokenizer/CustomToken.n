@@ -9,11 +9,11 @@ using System.Linq;
 
 namespace SomeParser
 {
-  /// <summary>
-  /// Represents any custom token
-  /// </summary>
-  public class CustomToken
-  {
+    /// <summary>
+    /// A base class for any custom token to derive from
+    /// </summary>
+    public abstract class CustomToken
+    {
       
-  }
+    }
 }

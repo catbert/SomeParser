@@ -32,7 +32,7 @@ namespace SomeParser.Tokenizer
         {
             def (tokenSubString, tail) = engine.Data.RemainingText.SplitByChar( Char.IsLetterOrDigit );
             
-            engine.Data.Tokens.Add(Token.Word(tokenSubString.Location));
+            engine.Data.Tokens.Add(Token.Word(tokenSubString));
             engine.Data.RemainingText = tail;
         }
         

@@ -18,15 +18,22 @@ namespace SomeParser
         [Accessor] _source      : SourceHandle;
         [Accessor] _index       : int;
         [Accessor] _length      : int;   
+                
+        public override ToString() : string
+        {
+            $"[$Source: $Index, $Length]";
+        }
         
         public static Empty : Loc
         {
             get { Loc() }
         }
         
-        public override ToString() : string
+        public static Combine(first : Loc, second : Loc) : Loc
         {
-            $"[$Source: $Index, $Length]";
+            when (first.Source != second.Source) throw InvalidOperationException("different source locs combined");
+            
+            Loc(first.Source, first.Index, second.Index + second.Length - first.Index);
         }
     }
 }

@@ -110,6 +110,18 @@ namespace SomeParser
             }
         }
         
+        public Combine(other : SubString) : SubString
+        {
+            if (object.ReferenceEquals(other, this)) this else
+            if (other is null) throw ArgumentNullException("other") else
+            if (other.Handle != this.Handle) throw ArgumentException("other", "Different handles") else
+            {
+                def start = Math.Min(this.Start, other.Start);
+                def length = Math.Max(this.End, other.End) - start;
+                SubString(this.Handle, this.Source, start, length); 
+            }
+        }
+        
         public Item[index : int] : char
         {
             get

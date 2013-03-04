@@ -1,0 +1,191 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using SomeParser.Tokenizer;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser
+{
+    /// <summary>
+    /// Description of NumberCollapser.
+    /// </summary>
+    class NumberCollapser
+    {
+        
+        public static CollapseNumberTokens(tokens : Seq[Token], source : string) : Seq[Token]
+        {
+        }
+        
+        enum State
+        {
+            | Off = 0
+            | Sign = 1
+            | Int = 2
+            | Dot = 3
+            | Dec = 4
+            | E = 5
+            | ESign = 6
+            | Exp = 7
+        }
+        
+        _tokens : IEnumerator[Token];
+        _buffer : List[Token] = List();
+        _result : List[Token] = List();
+        _table  : array[void -> void];
+        
+        mutable _state  : State = State.Off;
+        mutable _eof : bool = false;
+        
+        this(tokens : Seq[Token])
+        {
+            _tokens = tokens.GetEnumerator();
+            _table = array[
+                HandleOff, HandleSign, HandleInt, HandleDot, HandleDec, HandleE, HandleESign, HandleExp
+            ];
+        }
+        
+        Run() : void
+        {
+            while (!_eof)
+            {
+                _eof = !_tokens.MoveNext();
+                
+                def stateHandler = _table[_state :> int];
+                stateHandler();
+            }
+        }
+        
+        YieldNumber() : void
+        {
+            if (_buffer.Count > 0)
+            {
+                def combinedString = _buffer.First().Value.Combine(_buffer.Last().Value);
+                _result.Add(Token.Number(combinedString))
+            }
+            else ()
+        }
+        
+        YieldError() : void
+        {
+            if (_buffer.Count > 0)
+            {
+                def combinedString = _buffer.First().Value.Combine(_buffer.Last().Value);
+                _result.Add(Token.Error(combinedString))
+            }
+            else ()
+        }
+        
+        YieldTokens() : void
+        {
+            _result.AddRange(_buffer);
+        }
+        
+        YieldCurrentToken() : void
+        {
+            unless (_eof) _result.Add(_tokens.Current);
+        }
+        
+        BufferCurrentToken() : void
+        {
+            unless (_eof) _buffer.Add(_tokens.Current);
+        }
+        
+        #region Handlers
+        
+        HandleOff() : void
+        {
+            unless (_eof)
+            {
+                match (_tokens.Current)
+                {
+                    | Number => 
+                        BufferCurrentToken();
+                        _state = State.Int
+                    
+                    | Sign as s when s.Value.Length == 1 =>
+                        match (s.Value[0])
+                        {
+                            | '+' | '-' => 
+                                BufferCurrentToken();
+                                _state = State.Sign
+                                
+                            | '.' => 
+                                BufferCurrentToken();
+                                _state = State.Dot
+                            
+                            | _ => YieldCurrentToken()
+                        }
+                    
+                    | _ => YieldCurrentToken()
+                }
+            }
+        }
+        
+        HandleSign() : void
+        {
+            if (_eof)
+            {
+                YieldTokens();
+            }
+            else
+            {
+                match (_tokens.Current)
+                {
+                    | Number => 
+                        BufferCurrentToken();
+                        _state = State.Int
+                    
+                    | Sign as s when s.Value.Length == 1 =>
+                        match (s.Value[0])
+                        {
+                            | '+' | '-' => 
+                                YieldError();
+                                _state = State.Sign
+                                
+                            | '.' => 
+                                BufferCurrentToken();
+                                _state = State.Dot
+                            
+                            | _ => 
+                                YieldTokens();
+                                YieldCurrentToken()
+                        }
+                    
+                    | _ => YieldCurrentToken()
+                }
+            }
+        }
+        
+        HandleInt() : void
+        {
+        }
+        
+        HandleDot() : void
+        {
+        }
+        
+        HandleDec() : void
+        {
+        }
+        
+        HandleE() : void
+        {
+        }
+        
+        HandleESign() : void
+        {
+        }
+        
+        HandleExp() : void
+        {
+        }
+        
+        #endregion
+        
+    }
+}

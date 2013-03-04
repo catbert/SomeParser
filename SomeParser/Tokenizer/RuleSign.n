@@ -32,7 +32,7 @@ namespace SomeParser.Tokenizer
         {
             def (tokenSubString, tail) = engine.Data.RemainingText.SplitByChar( x => Char.IsSymbol(x) || Char.IsPunctuation(x) );
             
-            engine.Data.Tokens.Add(Token.Sign(tokenSubString.Location));
+            engine.Data.Tokens.Add(Token.Sign(tokenSubString));
             engine.Data.RemainingText = tail;
         }
         
