@@ -30,6 +30,9 @@ namespace SomeParser.Tokenizer
         // stops engine
         public override Apply(engine : RuleEngine[TokenizerState]) : void
         {
+            def newTokens = NumberCollapser.CollapseNumberTokens(engine.Data.Tokens);
+            engine.Data.Tokens.Clear();
+            engine.Data.Tokens.AddRange(newTokens);
             engine.IsFinished = true;
         }
         

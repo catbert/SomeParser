@@ -24,7 +24,8 @@ namespace SomeParser.Tokenizer
         // is applicable if char is sign
         public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
         {
-            Char.IsSymbol(engine.Data.RemainingText[0]) || Char.IsPunctuation(engine.Data.RemainingText[0])
+            def remText = engine.Data.RemainingText[0];
+            Char.IsSymbol(remText) || Char.IsPunctuation(remText)
         }
         
         // stops engine

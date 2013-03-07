@@ -96,6 +96,9 @@
     <Compile Include="Tokenizer\CustomToken.n">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Tokenizer\NumberCollapser.n">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Tokenizer\RuleFinish.n">
       <SubType>Code</SubType>
     </Compile>

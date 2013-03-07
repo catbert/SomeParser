@@ -122,6 +122,11 @@ namespace SomeParser
             }
         }
         
+        public IsChar(c : char) : bool
+        {
+            Length == 1 && this[0] == c
+        }
+        
         public Item[index : int] : char
         {
             get

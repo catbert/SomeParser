@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SomeParser
+namespace SomeParser.Tokenizer
 {
     /// <summary>
     /// Description of NumberCollapser.
@@ -17,11 +17,40 @@ namespace SomeParser
     class NumberCollapser
     {
         
-        public static CollapseNumberTokens(tokens : Seq[Token], source : string) : Seq[Token]
+        public static CollapseNumberTokens(tokens : List[Token]) : List[Token]
         {
+            def result = List(tokens.Count);
+            
+            mutable lastToken = null;
+            
+            def isSignToken(t)
+            {
+                !(object.ReferenceEquals(t, null)) && t.Value.Length == 1 && (    
+                    t.Value[0] == '+' || t.Value[0] == '-'
+                )
+            }
+            
+            for (mutable i = 0; i < tokens.Count; i++)
+            {
+                def token = tokens[i];
+                match (token)
+                {
+                    | Number as n when isSignToken(lastToken) => 
+                        def newToken = Token.Number(lastToken.Value.Combine(n.Value));
+                        result.Add(newToken);
+                        lastToken = null;
+                    | other => 
+                        unless (object.ReferenceEquals(lastToken, null)) result.Add(lastToken);
+                        lastToken = other
+                }
+            }
+            
+            unless (lastToken is null) result.Add(lastToken);
+            
+            result;
         }
         
-        enum State
+        /*enum State
         {
             | Off = 0
             | Sign = 1
@@ -186,6 +215,6 @@ namespace SomeParser
         }
         
         #endregion
-        
+        */
     }
 }

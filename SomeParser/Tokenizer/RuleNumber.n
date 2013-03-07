@@ -26,18 +26,25 @@ namespace SomeParser.Tokenizer
         // is applicable if char is digit
         public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
         {
-            Char.IsDigit(engine.Data.RemainingText[0])
+            engine.Data.RemainingText[0] >= '0' && engine.Data.RemainingText[0] <= '9'
+            //Char.IsDigit(engine.Data.RemainingText[0])
         }
         
         static AllNumberStyles : NumberStyles = NumberStyles.Any;
         static InvariantLocale : CultureInfo = CultureInfo.InvariantCulture;
         
-        // stops engine
+        // applies number rule
         public override Apply(engine : RuleEngine[TokenizerState]) : void
-        {   
-            def (tokenSubString, tail) = engine.Data.RemainingText.SplitByChar( Char.IsDigit );
+        {
+            mutable hasDot = false;
+                                
+            def (tok, tail) = engine.Data.RemainingText.SplitByChar( c => {
+                | '.' => if (hasDot) false else { hasDot = true; true }
+                |  c  when char.IsDigit(c) => true
+                |  _  => false
+            });
             
-            engine.Data.Tokens.Add(Token.Number(tokenSubString.Location, tokenSubString));
+            engine.Data.Tokens.Add(Token.Number(tok));
             engine.Data.RemainingText = tail;
         }
                 
