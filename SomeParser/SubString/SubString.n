@@ -10,7 +10,7 @@ using System.Linq;
 namespace SomeParser
 {
     /// <summary>
-    /// Description of StringSource.
+    /// SubString is an immutable slice of string, mostly for tokenizing
     /// </summary>
     [Record]
     public class SubString : Seq[char], ILocatable

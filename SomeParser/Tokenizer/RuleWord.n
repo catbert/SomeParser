@@ -15,10 +15,10 @@ namespace SomeParser.Tokenizer
     class RuleWord : Rule[TokenizerState]
     {
         
-        // priority 5
+        // priority 6
         public this()
         {
-            base(5);
+            base(6);
         }
         
         // is applicable if char is sign
