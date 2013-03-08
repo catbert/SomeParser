@@ -102,6 +102,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Cases\comments.tok.in">
+      <SubType>Content</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Cases\numbers.tok.in">
       <SubType>Content</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

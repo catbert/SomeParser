@@ -17,7 +17,7 @@ namespace SomeParser.Tokenizer
         
         public this()
         {
-            Rules.AddRange([RuleFinish(), RuleWhitespace(), RuleSign(), RuleWord(), RuleNumber() ]);
+            Rules.AddRange([RuleFinish(), RuleWhitespace(), RuleSign(), RuleWord(), RuleNumber(), RuleComment()]);
         }
         
         public Tokenize(text : SubString) : Seq[Token]

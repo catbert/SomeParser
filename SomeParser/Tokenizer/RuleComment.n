@@ -1,0 +1,77 @@
+﻿using Nemerle;
+using Nemerle.Collections;
+using Nemerle.Text;
+using Nemerle.Utility;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace SomeParser.Tokenizer
+{
+    /// <summary>
+    /// Clears out comments
+    /// </summary>
+    class RuleComment : Rule[TokenizerState]
+    {
+        // priority 4
+        public this()
+        {
+            base(4);
+        }
+        
+        // applicable for // and /*
+        public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
+        {
+            if (engine.Data.RemainingText.Length > 1)
+            {
+                def firstChar = engine.Data.RemainingText[0];
+                def secondChar = engine.Data.RemainingText[1];
+                
+                (firstChar == '/' && (secondChar == '*' || secondChar == '/'))
+            }
+            else false
+        } 
+        
+        // add comment token
+        public override Apply(engine : RuleEngine[TokenizerState]) : void
+        {
+            if (engine.Data.RemainingText[1] == '*') BlockComment(engine) else LineComment(engine);
+        }
+        
+        BlockComment(engine : RuleEngine[TokenizerState]) : void
+        {
+            def rt = engine.Data.RemainingText;
+            
+            def (token, tail) = result : {
+            
+                for (mutable i = rt.Start + 2; i < rt.End - 1; i++)
+                {
+                    match( (rt.Source[i], rt.Source[i+1]) )
+                    {
+                        | ('*', '/') =>
+                            def head = SubString(rt.Handle, rt.Source, rt.Start, i + 2 - rt.Start);
+                            def tail = rt.Skip(head.Length);
+                    
+                            result((Token.Comment(head), tail))                           
+                        | _ => ()
+                    }
+                };
+                
+                (Token.Error(rt), rt.Skip(rt.Length))
+                
+            }
+            
+            engine.Data.Tokens.Add(token);
+            engine.Data.RemainingText = tail;
+        }
+        
+        LineComment(engine : RuleEngine[TokenizerState]) : void
+        {
+            def (tokenSubString, tail) = engine.Data.RemainingText.SplitByChar(_ != '\r');
+            
+            engine.Data.Tokens.Add(Token.Comment(tokenSubString));
+            engine.Data.RemainingText = tail;
+        }
+    }
+}

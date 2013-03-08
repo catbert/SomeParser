@@ -15,10 +15,10 @@ namespace SomeParser.Tokenizer
     class RuleWhitespace : Rule[TokenizerState]
     {
         
-        // priority 9
+        // priority 6
         public this()
         {
-            base(9);
+            base(6);
         }
         
         // is applicable when first character is whitespace

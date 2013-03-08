@@ -1,0 +1,12 @@
+﻿    /// <summary>
+    /// Finishes the parsing
+    /// </summary>
+    class RuleWord : Rule[TokenizerState]
+    {
+        
+        // priority 7
+        public this /*()*/
+        {
+            base(7);
+        }
+        
