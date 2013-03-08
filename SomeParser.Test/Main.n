@@ -13,29 +13,39 @@ using SomeParser.ConsoleTools;
 
 module Program
 {
+    public CheckPerformance : bool
+    {
+        get;
+        private set;
+    }
+    
     Main() : void
     {
         while (true)
         {
             InColor(ConsoleColor.White, () => {
                 WriteLine("Select your action.");
-                WriteLine("  1 Run root test");
+                WriteLine("  1 Run root test (no perf test)");
+                WriteLine("  p Run root test (with perf test)");
                 WriteLine("  2 Generate tokenizer out-files");
                 WriteLine("  3 Delete tokenizer out-files");
                 WriteLine("  9 Exit");
             });
        
-            match (ReadLine().Trim())
+            match (ReadLine().Trim().ToLower())
             {
                 | "1" => RunRootTest()
                 | "2" => GenerateTokenizerOutfiles()
                 | "3" => DeleteTokenizerOutfiles()
+                
+                | "p" => CheckPerformance = true; RunRootTest();
                 
                 | "9" => Exit()
                 | _   => IncorrectInput()
             }
             
             WriteLine();
+            CheckPerformance = false;
         }
     }
     

@@ -79,23 +79,26 @@ namespace SomeParser.Test
         
         protected PerfTest(action : void -> void, times : int, test : string = "Took") : TestResult
         {
-            def sw = Diagnostics.Stopwatch.StartNew();
-            
-            try
+            if (Program.CheckPerformance)
             {
-                for (mutable i = 0; i < times; i++)
+                def sw = Diagnostics.Stopwatch.StartNew();
+            
+                try
                 {
-                    action();
-                }
+                    for (mutable i = 0; i < times; i++)
+                    {
+                        action();
+                    }
                 
-                sw.Stop();
-                TestResult.Message(Name, $"$test $(sw.Elapsed).");
+                    sw.Stop();
+                    TestResult.Message(Name, $"$test $(sw.Elapsed).");
+                }
+                catch
+                {
+                    | ex => TestResult.Thrown(Name, ex);
+                }
             }
-            catch
-            {
-                | ex => TestResult.Thrown(Name, ex);
-            }
-            
+            else TestResult.Message(Name, "Performance test skipped");
         }
     }
 }

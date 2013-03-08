@@ -24,10 +24,13 @@ namespace SomeParser.Test
             when (name is null) throw ArgumentNullException("name");
             Name = $"Tokenizer test $name";
             
-            if (input is null) TestResult.Failure(Name, "There is no input") else
-            if (name.Contains("perf")) TestPerf(input) else
-            if (expectedOutput is null) TestResult.Failure(Name, "There is no output") else
-            try
+            if (input is null) TestResult.Failure(Name, "There is no input")
+            else if (name.Contains("perf")) 
+            {
+                if (Program.CheckPerformance) TestPerf(input) else TestResult.Message(Name, "PerfTest skipped");
+            }
+            else if (expectedOutput is null) TestResult.Failure(Name, "There is no output") 
+            else try
             {
                 def proj = Project();
                 proj.Sources.Add(input);
