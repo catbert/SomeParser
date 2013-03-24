@@ -75,6 +75,28 @@ namespace SomeParser
             }
         }
         
+        public SplitByCharNext(predicate : char -> bool) : SubString * SubString
+        {            
+            result : {
+            
+                for (mutable i = Start + 1; i < End; i++)
+                {
+                    def ch = Source[i];
+                
+                    unless (predicate(ch))
+                    {
+                        def head = SubString(Handle, Source, Start, i - Start);
+                        def tail = Skip(head.Length);
+                    
+                        result((head, tail))
+                    }
+                };
+                
+                (this, Skip(Length))
+                
+            }
+        }    
+        
         public SplitByString(predicate : string -> bool) : SubString * SubString
         {            
             result : {

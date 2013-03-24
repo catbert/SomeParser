@@ -1,0 +1,22 @@
+[0: 4, 13] Comment {/// <summary>}
+[0: 23, 24] Comment {/// Finishes the parsing}
+[0: 53, 14] Comment {/// </summary>}
+[0: 73, 5] Word {class}
+[0: 79, 8] Word {RuleWord}
+[0: 88, 1] Sign {:}
+[0: 90, 4] Word {Rule}
+[0: 94, 1] Sign {[}
+[0: 95, 14] Word {TokenizerState}
+[0: 109, 1] Sign {]}
+[0: 116, 1] Sign {{}
+[0: 137, 13] Comment {// priority 7}
+[0: 160, 6] Word {public}
+[0: 167, 4] Word {this}
+[0: 172, 6] Comment {/*()*/}
+[0: 188, 1] Sign {{}
+[0: 203, 4] Word {base}
+[0: 207, 1] Sign {(}
+[0: 208, 1] Number {7}
+[0: 209, 1] Sign {)}
+[0: 210, 1] Sign {;}
+[0: 221, 1] Sign {}}

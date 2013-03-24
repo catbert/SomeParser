@@ -14,6 +14,9 @@ namespace SomeParser.Tokenizer
     /// </summary>
     class RuleSign : Rule[TokenizerState]
     {
+        // separator chars do not glue with other chars and themselves
+        // so :: is 1 token, but ;; is not, and :; is not
+        static SeparatorCharCollection = ".,;(){}[]";
         
         // priority 3
         public this()
@@ -24,17 +27,44 @@ namespace SomeParser.Tokenizer
         // is applicable if char is sign
         public override IsApplicable(engine : RuleEngine[TokenizerState]) : bool
         {
-            def remText = engine.Data.RemainingText[0];
-            Char.IsSymbol(remText) || Char.IsPunctuation(remText)
+            IsSignChar(engine.Data.RemainingText[0])            
         }
         
-        // stops engine
+        // adds a sign token
         public override Apply(engine : RuleEngine[TokenizerState]) : void
         {
-            def (tokenSubString, tail) = engine.Data.RemainingText.SplitByChar( x => Char.IsSymbol(x) || Char.IsPunctuation(x) );
+            def remText = engine.Data.RemainingText;
+            if (IsSeparatorChar(remText[0]))
+            {
+                engine.Data.Tokens.Add(Token.Sign(remText.Take(0, 1)));
+                engine.Data.RemainingText = remText.Skip(1);
+            }
+            else
+            {
+                def (tokenSubString, tail) = remText.SplitByCharNext( IsNextSignChar );
             
-            engine.Data.Tokens.Add(Token.Sign(tokenSubString));
-            engine.Data.RemainingText = tail;
+                engine.Data.Tokens.Add(Token.Sign(tokenSubString));
+                engine.Data.RemainingText = tail;
+            }
+        }
+        
+        // determines whether a char is Sign
+        private static IsSignChar(c : char) : bool
+        {
+            Char.IsSymbol(c) || Char.IsPunctuation(c)
+        }
+        
+        // determines whether a char is a symbol and can form a sign with a previous char
+        private static IsNextSignChar(c : char) : bool
+        {
+            (Char.IsSymbol(c) || Char.IsPunctuation(c)) 
+                && !IsSeparatorChar(c);
+        }
+        
+        // determines whether a symbol is a separator
+        private static IsSeparatorChar(c : Char) : bool
+        {
+            SeparatorCharCollection.Contains(c);
         }
         
     }
